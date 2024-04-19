@@ -1,9 +1,5 @@
-@minLength(2)
-@maxLength(5)
-param apimPrefix string
-
 @description('The name of the API Management service instance')
-param apiManagementServiceName string = '${apimPrefix}-APIM-Hello-World-GraphQL-Demo-${uniqueString(resourceGroup().id)}'
+param apiManagementServiceName string = 'APIM-Hello-World-GraphQL-Demo-${uniqueString(resourceGroup().id)}'
 
 @description('The name of the owner of the service')
 @minLength(1)
