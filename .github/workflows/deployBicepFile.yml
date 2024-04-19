@@ -57,8 +57,9 @@ jobs:
       with:
         inlineScript: |
           az deployment group create \
-            --resource-group ${{ env.AZURE_RESOURCEGROUP_NAME }} 
-            --template-file ./.github/biceps/deploy_graphql_api.bicep
+            --resource-group ${{ env.AZURE_RESOURCEGROUP_NAME }} \
+            --template-file ./.github/biceps/deploy_graphql_api.bicep \
+            --location ${{ env.LOCATION }}
 
     - name: Configure API Policies
       uses: Azure/cli@v2.0.0
