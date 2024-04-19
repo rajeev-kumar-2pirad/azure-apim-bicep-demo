@@ -27,7 +27,7 @@ jobs:
     - name: Bicep Lint
       uses: Azure/cli@v1
       with:
-        inlineScript: az bicep build --file main.bicep
+        inlineScript: az bicep build --file ../biceps/create_apim_service.bicep
 
     - name: Deploy APIM service
       uses: azure/arm-deploy@v1
