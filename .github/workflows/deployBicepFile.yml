@@ -1,10 +1,32 @@
 name: Deploy Bicep File
-on: [push]
+
+on:
+  push:
+    branches-ignore:
+      - 'feature/**'
+    branches:
+      - main
+      - 'release/**'
+      - '!release/**-alpha'
+    paths-ignore:
+      - 'images/**'
+      - '.github/queries/**'
+      - '.github/README.md'
+      - 'README.md'
+    paths:
+      - '.github/biceps/***'
+      - '!gitub/schemas/**'
+    schedule:
+      - cron: '0 0 1 1 *'
+
+env:
+    AZURE_RESOURCEGROUP_NAME: demo-apim-graphql
+    ENVIRONMENT: nonprod
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-
     - name: Checkout code
       uses: actions/checkout@main
 
@@ -14,10 +36,11 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Deploy APIM service
-      uses: azure/arm-apim-deploy@v1
+      uses: azure/arm-deploy@v1
       with:
-        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
-        resourceGroupName: ${{ secrets.AZURE_RG }}
+        deploymentName: ${{ github.run_number }}
+        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        resourceGroupName: ${{ env.AZURE_RESOURCEGROUP_NAME }}
         template: ../biceps/create_apim_service.bicep
         parameters: 'apiManagementServiceName=caa-api-dev publisherName=Rajeev Kumar publisherEmail=xylem@yopmai.com sku=Developer skuCount=1'
         failOnStdErr: false
@@ -28,7 +51,7 @@ jobs:
         subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
         resourceGroupName: ${{ secrets.AZURE_RG }}
         template: ../biceps/deploy_graphql_api.bicep
-        parameters: 'apiManagementServiceName=caa-api-dev apiName='' apiPath='' apiDescription='' apiDisplayName='' serviceUrl=''
+        parameters: 'apiManagementServiceName=caa-api-dev'
         failOnStdErr: false
 
     - name: Configre API Policies
