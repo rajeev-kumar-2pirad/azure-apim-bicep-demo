@@ -1,6 +1,9 @@
 name: Deploy Bicep File
 
 on:
+  label:
+    types:
+      - created
   push:
     branches:
       - "main"
@@ -11,6 +14,8 @@ on:
       - "production"
     paths-ignore:
       - "README.md"
+  schedule:
+    - cron: '0 0 1 1 *' # once in year at midnight new year eve
 
 env:
   AZURE_RESOURCEGROUP_NAME: demo-apim-graphql
@@ -36,12 +41,6 @@ jobs:
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-    # Checks that all Bicep configuration files adhere to a canonical format
-    - name: Bicep Lint
-      uses: Azure/cli@v1
-      with:
-        inlineScript: az bicep build --file ../.github/biceps/create_apim_service.bicep
 
     - name: Deploy APIM service
       uses: azure/arm-deploy@v1
