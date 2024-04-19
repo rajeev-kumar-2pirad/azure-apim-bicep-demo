@@ -11,7 +11,6 @@ env:
   LOCATION: "eastus"
 
 jobs:
-  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
@@ -27,7 +26,7 @@ jobs:
     - name: Bicep Lint
       uses: Azure/cli@v1
       with:
-        inlineScript: az bicep build --file ../biceps/create_apim_service.bicep
+        inlineScript: az bicep build --file ../.github/biceps/create_apim_service.bicep
 
     - name: Deploy APIM service
       uses: azure/arm-deploy@v1
@@ -35,7 +34,7 @@ jobs:
         deploymentName: ${{ github.run_number }}
         subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         resourceGroupName: ${{ env.AZURE_RESOURCEGROUP_NAME }}
-        template: ../biceps/create_apim_service.bicep
+        template: ./.github//biceps/create_apim_service.bicep
         parameters: 'apiManagementServiceName=caa-api-dev publisherName=Rajeev Kumar publisherEmail=xylem@yopmai.com sku=Developer skuCount=1'
         failOnStdErr: false
 
@@ -45,7 +44,7 @@ jobs:
         inlineScript: |
           az deployment group create \
             --resource-group ${{ env.AZURE_RESOURCEGROUP_NAME }} 
-            --template-file ../biceps/deploy_graphql_api.bicep
+            --template-file ./.github/biceps/deploy_graphql_api.bicep
             --location ${{ env.LOCATION }}
 
     - name: Configure API Policies
