@@ -53,7 +53,7 @@ jobs:
         failOnStdErr: false
 
     - name: Expose GraphQL API through APIM services
-      uses: Azure/cli@v1
+      uses: Azure/cli@v2.0.0
       with:
         inlineScript: |
           az deployment group create \
@@ -62,31 +62,31 @@ jobs:
             --location ${{ env.LOCATION }}
 
     - name: Configure API Policies
-      uses: Azure/cli@v1
+      uses: Azure/cli@v2.0.0
       with:
         inlineScript: |
           echo "Configure API Policies - DONE"
 
     - name: Configure Product, User, Group and Subscription
-      uses: Azure/cli@v1
+      uses: Azure/cli@v2.0.0
       with:
         inlineScript: |
           echo "Configure Product, User, Group and Subscription - DONE"
 
     - name: Configure Product Policies
-      uses: Azure/cli@v1
+      uses: Azure/cli@v2.0.0
       with:
         inlineScript: |
           echo "Configure Product Policies - DONE"
 
     - name: Configure Developer Portal
-      uses: Azure/cli@v1
+      uses: Azure/cli@v2.0.0
       with:
         inlineScript: |
           echo "Configure Developer Portal - DONE"
   
     - name: Clean up resources
-      uses: Azure/cli@v1
+      uses: Azure/cli@v2.0.0
       with:
         run: |
           echo "List APIM API(s)"
