@@ -11,10 +11,7 @@ on:
       - '.github/biceps/***'
       - '.github/schemas/***'
       - '.github/workflows/***'
-      - '!.gitub/schemas/**'
       - '!images/**'
-      - '!.github/queries/**'
-      - '!.github/README.md'
       - '!README.md'
   pull_request:
     types: [opened, reopened]
