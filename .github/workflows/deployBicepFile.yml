@@ -8,9 +8,9 @@ on:
       - 'feature/**'
       - '!release/**-alpha'
     paths:
-      - '.github/biceps/***'
-      - '.github/schemas/***'
-      - '.github/workflows/***'
+      - './.github/biceps/***'
+      - './.github/schemas/***'
+      - './.github/workflows/***'
       - '!images/**'
       - '!README.md'
   pull_request:
