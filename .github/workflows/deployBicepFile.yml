@@ -1,29 +1,13 @@
 name: Deploy Bicep File
 
 on:
-  label:
-    types:
-      - created
   push:
     branches:
       - main
       - 'release/**'
-      - 'feature/**'
-      - '!release/**-alpha'
     paths:
       - '!images/**'
       - '!README.md'
-  pull_request:
-    types: [opened, reopened]
-    branches:    
-      - 'master'    # matches refs/heads/master
-      - 'main'
-      - '!release/**-alpha'
-    paths:
-      - '!images/**'
-      - '!README.md'
-  schedule:
-    - cron: '0 0 1 1 *' # once in year at midnight new year eve
 
 env:
     AZURE_RESOURCEGROUP_NAME: demo-apim-graphql
