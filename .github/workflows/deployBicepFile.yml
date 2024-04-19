@@ -2,22 +2,30 @@ name: Deploy Bicep File
 
 on:
   push:
-    branches-ignore:
-      - 'feature/**'
     branches:
       - main
       - 'release/**'
+      - 'feature/**'
       - '!release/**-alpha'
-    paths-ignore:
-      - 'images/**'
-      - '.github/queries/**'
-      - '.github/README.md'
-      - 'README.md'
     paths:
       - '.github/biceps/***'
-      - '!gitub/schemas/**'
-    schedule:
-      - cron: '0 0 1 1 *'
+      - '.github/schemas/***'
+      - '.github/workflows/***'
+      - '!.gitub/schemas/**'
+      - '!images/**'
+      - '!.github/queries/**'
+      - '!.github/README.md'
+      - '!README.md'
+  pull_request:
+    types: [opened, reopened]
+    branches:    
+      - 'master'    # matches refs/heads/master
+      - 'main'
+      - '!release/**-alpha'
+    paths:
+      - '**'
+  schedule:
+    - cron: '0 0 1 1 *' # once in year at midnight new year eve
 
 env:
     AZURE_RESOURCEGROUP_NAME: demo-apim-graphql
