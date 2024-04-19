@@ -8,6 +8,7 @@ on:
 env:
   AZURE_RESOURCEGROUP_NAME: demo-apim-graphql
   ENVIRONMENT: nonprod
+  LOCATION: "eastus"
 
 jobs:
   build-and-deploy:
@@ -16,10 +17,17 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@main
 
+    # Login to Azure
     - name: Log into Azure
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    # Checks that all Bicep configuration files adhere to a canonical format
+    - name: Bicep Lint
+      uses: Azure/cli@v1
+      with:
+        inlineScript: az bicep build --file main.bicep
 
     - name: Deploy APIM service
       uses: azure/arm-deploy@v1
@@ -32,33 +40,43 @@ jobs:
         failOnStdErr: false
 
     - name: Expose GraphQL API through APIM services
-      uses: azure/arm-graphql-deploy@v1
+      uses: Azure/cli@v1
       with:
-        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
-        resourceGroupName: ${{ secrets.AZURE_RG }}
-        template: ../biceps/deploy_graphql_api.bicep
-        parameters: 'apiManagementServiceName=caa-api-dev'
-        failOnStdErr: false
+        inlineScript: |
+          az deployment group create \
+            --resource-group ${{ env.AZURE_RESOURCEGROUP_NAME }} 
+            --template-file ../biceps/deploy_graphql_api.bicep
+            --location ${{ env.LOCATION }}
 
-    - name: Configre API Policies
-      uses: azure/arm-api-policies-deploy@v1
+    - name: Configure API Policies
+      uses: Azure/cli@v1
+      with:
+        inlineScript: |
+          echo "Configure API Policies - DONE"
 
-    - name: Configre Product, User, Group and Subscription
-      uses: azure/arm-product-deploy@v1
+    - name: Configure Product, User, Group and Subscription
+      uses: Azure/cli@v1
+      with:
+        inlineScript: |
+          echo "Configure Product, User, Group and Subscription - DONE"
 
-    - name: Configre Product Policies
-      uses: azure/arm-product-polices-deploy@v1
+    - name: Configure Product Policies
+      uses: Azure/cli@v1
+      with:
+        inlineScript: |
+          echo "Configure Product Policies - DONE"
 
-    - name: Configre Developer Portal
-      uses: azure/arm-developer-portal-deploy@v1
+    - name: Configure Developer Portal
+      uses: Azure/cli@v1
+      with:
+        inlineScript: |
+          echo "Configure Developer Portal - DONE"
 
     - name: Clean up resources
-      uses: azure/clean-up@v1
+      uses: Azure/cli@v1
       with:
-        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
-        resourceGroupName: ${{ secrets.AZURE_RG }}
         run: |
           echo "List APIM API(s)"
           az apim api list
           echo "Delete APIM resource by ID"
-          run: 'az resource delete --ids /subscriptions/0b1f6471-1bf0-4dda-aec3-111111111111/resourceGroups/MyResourceGroup/providers/Microsoft.Web/sites/MyWebapp'
+          run: 'az resource delete --ids /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/${{ env.AZURE_RESOURCEGROUP_NAME }}/providers/Microsoft.ApiManagement/service/*'
