@@ -19,16 +19,22 @@ env:
 
 jobs:
   # JOB:1
-  Launch_VM_and_checkout_code:
+  Get_Runner_and_checkout_code:
     runs-on: ubuntu-latest
+    if: ${{ always() }}
+    outputs:
+      RUNNER: ${{ runner.name }}
     steps:
-    - name: Launch VM and Checkout code
+    - name: Get and Print Runner Name
+      run: echo "selected runner = ${{ runner.name }}"
+
+    - name: Checkout code in Runner
       uses: actions/checkout@main
-  
+
   # JOB:2
   Login_Azure:
     name: Azure Login and Bicep Lint
-    runs-on: ${{ needs.Launch_VM_and_checkout_code.outputs.label }}
+    runs-on: ${{ needs.Get_Runner_and_checkout_code.outputs.RUNNER }}
     needs: Launch_VM_and_checkout_code
     steps:
     # Login to Azure
@@ -46,7 +52,7 @@ jobs:
   # JOB:3
   Deploy_Bicep_Scripts:
     name: Deploy Bicep Scripts
-    runs-on: ${{ needs.Login_Azure.outputs.label }}
+    runs-on: ${{ needs.Get_Runner_and_checkout_code.outputs.RUNNER }}
     needs: Login_Azure
     steps:
     - name: Deploy APIM service
@@ -96,7 +102,7 @@ jobs:
   Cleanu_Up_Resources:
     name: Clean up resources
     if: always()
-    runs-on: ${{ needs.Deploy_Bicep_Scripts.outputs.label }}
+    runs-on: ${{ needs.Get_Runner_and_checkout_code.outputs.RUNNER }}
     needs: Deploy_Bicep_Scripts
     steps:
     - name: Clean up resources
