@@ -1,4 +1,4 @@
-name: Deploy Bicep file
+name: Deploy Bicep File
 on: [push]
 jobs:
   build-and-deploy:
@@ -19,7 +19,7 @@ jobs:
         subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
         resourceGroupName: ${{ secrets.AZURE_RG }}
         template: ../biceps/create_apim_service.bicep
-        parameters: 'apiManagementServiceName=caa-api-dev publisherName='Rajeev Kumar' publisherEmail=xylem@yopmai.com sku=Developer skuCount=1'
+        parameters: 'apiManagementServiceName=caa-api-dev publisherName=Rajeev Kumar publisherEmail=xylem@yopmai.com sku=Developer skuCount=1'
         failOnStdErr: false
 
     - name: Expose GraphQL API through APIM services
@@ -52,4 +52,4 @@ jobs:
           echo "List APIM API(s)"
           az apim api list
           echo "Delete APIM resource by ID"
-          run: az resource delete --ids /subscriptions/0b1f6471-1bf0-4dda-aec3-111111111111/resourceGroups/MyResourceGroup/providers/Microsoft.Web/sites/MyWebapp
+          run: 'az resource delete --ids /subscriptions/0b1f6471-1bf0-4dda-aec3-111111111111/resourceGroups/MyResourceGroup/providers/Microsoft.Web/sites/MyWebapp'
