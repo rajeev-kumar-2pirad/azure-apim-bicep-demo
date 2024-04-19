@@ -1,0 +1,40 @@
+trigger:
+  branches:
+    include:
+    - main
+    - release/*
+    exclude:
+    - feature/*
+  paths:
+    exclude:
+    - docs
+    include:
+    - deploy
+
+schedules:
+- cron: "0 0 1 1 *" # once in year at midnight new year eve
+  displayName: Daily environment restore
+  branches:
+    include:
+    - main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+- name: deploymentDefaultLocation
+  value: eastus1
+
+jobs:
+- job:
+  steps:
+
+  - task: AzureResourceManagerTemplateDeployment@3
+    inputs:
+      connectedServiceName: $(ServiceConnectionName)
+      deploymentName: $(Build.BuildNumber)
+      location: $(deploymentDefaultLocation)
+      resourceGroupName: $(ResourceGroupName)
+      csmFile: ./.github//biceps/create_apim_service.bicep
+      overrideParameters: >
+        -environmentType $(EnvironmentType)

@@ -30,7 +30,7 @@ Managing infrastructure deployments on Azure as IaaC through Bicep scripts
 ```az group create --name <<<resource-group-name>>> --location eastus```
 
 ### EXECUTE/SUBMIT ARMTEMPLATE.JSON file to AZURE ENGINE using AZURE CLI
-```aaz deployment group create --resource-group <<<resource-group>>> --template-file <<<armtemplatefile.json>>>```
+```az deployment group create --resource-group <<<resource-group>>> --template-file <<<armtemplatefile.json>>>```
 
 ### EXECUTE/SUBMIT AZUREBICEPTEMPLATE.BICEP file to AZURE ENGINE using AZURE CLI
 ```az deployment group create --resource-group <<<resource-group>>> --template-file <<<biceptemplatefile.bicep>>>```
