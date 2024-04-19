@@ -1,0 +1,55 @@
+name: Deploy Bicep file
+on: [push]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout code
+      uses: actions/checkout@main
+
+    - name: Log into Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Deploy APIM service
+      uses: azure/arm-apim-deploy@v1
+      with:
+        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+        resourceGroupName: ${{ secrets.AZURE_RG }}
+        template: ../biceps/create_apim_service.bicep
+        parameters: 'apiManagementServiceName=caa-api-dev publisherName='Rajeev Kumar' publisherEmail=xylem@yopmai.com sku=Developer skuCount=1'
+        failOnStdErr: false
+
+    - name: Expose GraphQL API through APIM services
+      uses: azure/arm-graphql-deploy@v1
+      with:
+        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+        resourceGroupName: ${{ secrets.AZURE_RG }}
+        template: ../biceps/deploy_graphql_api.bicep
+        parameters: 'apiManagementServiceName=caa-api-dev apiName='' apiPath='' apiDescription='' apiDisplayName='' serviceUrl=''
+        failOnStdErr: false
+
+    - name: Configre API Policies
+      uses: azure/arm-api-policies-deploy@v1
+
+    - name: Configre Product, User, Group and Subscription
+      uses: azure/arm-product-deploy@v1
+
+    - name: Configre Product Policies
+      uses: azure/arm-product-polices-deploy@v1
+
+    - name: Configre Developer Portal
+      uses: azure/arm-developer-portal-deploy@v1
+
+    - name: Clean up resources
+      uses: azure/clean-up@v1
+      with:
+        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+        resourceGroupName: ${{ secrets.AZURE_RG }}
+        run: |
+          echo "List APIM API(s)"
+          az apim api list
+          echo "Delete APIM resource by ID"
+          run: az resource delete --ids /subscriptions/0b1f6471-1bf0-4dda-aec3-111111111111/resourceGroups/MyResourceGroup/providers/Microsoft.Web/sites/MyWebapp
