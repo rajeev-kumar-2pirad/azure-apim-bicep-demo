@@ -18,7 +18,7 @@ env:
   LOCATION: "eastus"
 
 jobs:
-  Deploy Bicep Files:
+  Deploy-Bicep-Files:
     runs-on: ubuntu-latest
     if: ${{ always() }}
     outputs:
