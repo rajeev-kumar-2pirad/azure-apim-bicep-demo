@@ -1,40 +1,103 @@
-trigger:
-  branches:
-    include:
-    - main
-    - release/*
-    exclude:
-    - feature/*
-  paths:
-    exclude:
-    - docs
-    include:
-    - deploy
-
-schedules:
-- cron: "0 0 1 1 *" # once in year at midnight new year eve
-  displayName: Daily environment restore
-  branches:
-    include:
-    - main
-
-pool:
-  vmImage: ubuntu-latest
-
+trigger: none
+parameters:
+- name: azureServiceConnection
+  displayName: Service Connection
+  type: string
+  default: myserviceconnection
+  values:
+  - caa-service-connection
+  - myserviceconnection
+- name: azureSubscription
+  displayName: Azure Subscription
+  type: string
+  default: f62c4e26-ce53-44a7-94a2-40ae82d69ba6
+  values: 
+  - f62c4e26-ce53-44a7-94a2-40ae82d69ba6
 variables:
-- name: deploymentDefaultLocation
-  value: eastus1
-
+  vmImageName: ubuntu-latest
+  environmentType: dev
+  resourceGroupName1: demo-apim-graphql
+  resourceGroupName2: exampleRg
+  location: US East
+  templateFile1: ./cicd/biceps/create_apim_service.bicep
+  templateFile2: ./cicd/biceps/deploy_graphql_api.bicep
+pool: Default
 jobs:
-- job:
-  steps:
+  - job: A
+    displayName: Placeholder step - Hello World
+    steps:
+      - script: echo Hello world!
+        displayName: Placeholder step - Hello World
 
-  - task: AzureResourceManagerTemplateDeployment@3
-    inputs:
-      connectedServiceName: $(ServiceConnectionName)
-      deploymentName: $(Build.BuildNumber)
-      location: $(deploymentDefaultLocation)
-      resourceGroupName: $(ResourceGroupName)
-      csmFile: ./.github//biceps/create_apim_service.bicep
-      overrideParameters: >
-        -environmentType $(EnvironmentType)
+  - job: B
+    displayName: Deploy APIM service
+    dependsOn: A
+    steps: 
+      - task: AzureResourceManagerTemplateDeployment@3
+        displayName: Deploy APIM service
+        inputs:
+          deploymentName: $(Build.BuildNumber)
+          connectedServiceName: ${{ parameters.azureServiceConnection }}
+          deploymentScope: Resource Group
+          resourceGroupName: $(resourceGroupName1)
+          location: $(location)
+          csmFile: $(templateFile1)
+          
+  - job: C
+    displayName: Expose GraphQL API through APIM services
+    dependsOn: B
+    condition: succeeded()
+    steps:
+      - task: AzureResourceManagerTemplateDeployment@3
+        displayName: Expose GraphQL API through APIM services
+        inputs:
+          deploymentName: $(Build.BuildNumber)
+          connectedServiceName: ${{ parameters.azureServiceConnection }}
+          deploymentScope: Resource Group
+          resourceGroupName: $(resourceGroupName1)
+          location: $(location)
+          csmFile: $(templateFile2)
+
+  - job: D
+    displayName: Configure API Policies
+    dependsOn: 
+    - B
+    - C
+    condition: succeeded('C')
+    steps: 
+      - script: echo "Configure API Policies - DONE"
+        displayName: Configure API Policies
+
+  - job: E
+    displayName: Configure Product, User, Group and Subscription
+    dependsOn: 
+    - B
+    - C
+    condition: succeeded('C')
+    steps: 
+      - script: echo "Configure Product, User, Group and Subscription - DONE"
+        displayName: Configure Product, User, Group and Subscription
+  
+  - job: F
+    displayName: Configure Product Policies
+    dependsOn: E
+    condition: succeeded()
+    steps: 
+      - script: echo "Configure Product Policies - DONE"
+        displayName: Configure Product Policies
+
+  - job: G
+    displayName: Configure Developer Portal
+    dependsOn: F
+    condition: succeeded()
+    steps: 
+      - script: echo "Configure Developer Portal - DONE"
+        displayName: Configure Developer Portal
+
+  - job: H
+    displayName: Clean up resources
+    dependsOn: G
+    condition: succeeded()
+    steps: 
+      - script: echo "Clean up resources - DONE"
+        displayName: Clean up resources
