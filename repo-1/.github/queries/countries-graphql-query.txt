@@ -1,0 +1,39 @@
+query Query {
+  country(code: "BR") {
+    name
+    native
+    capital
+    emoji
+    currency
+    languages {
+      code
+      name
+    }
+  }
+}
+
+
+query ListCountriesThatUseUSD {
+  countries(filter: { currency: { eq: "USD" } }) {
+    code
+    name
+  }
+}
+
+query ListCountriesInNAFTA {
+  countries(filter: { code: { in: ["US", "CA", "MX"] } }) {
+    code
+    name
+    languages {
+      name
+    }
+  }
+}
+
+query ListCountriesThatBeginWithTheLetterA {
+  countries(filter: { name: { regex: "^A" } }) {
+    code
+    name
+    currency
+  }
+}
