@@ -1,0 +1,9 @@
+trigger: none
+
+pool: Default
+
+jobs:
+- job:
+  steps:
+  - script: echo Hello world!
+    displayName: 'Placeholder step'
